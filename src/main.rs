@@ -1,3 +1,5 @@
+use hvm::{language::read_file, rulebook::gen_rulebook};
+
 mod builder;
 mod compiler;
 mod language;
@@ -37,6 +39,34 @@ fn run_cli() -> std::io::Result<()> {
 
   if (cmd == "c" || cmd == "compile") && args.len() >= 3 {
     let file = &hvm(&args[2]);
+
+    let code = load_file_code(file);
+    let parsed = read_file(&code);
+    println!("Parsed:");
+    println!("{}", parsed);
+    println!();
+
+    let rulebook = gen_rulebook(&parsed);
+    println!("Rulebook:");
+    println!();
+
+    println!("func_rules:");
+    println!();
+    for (func_name, (num_args, rules)) in &rulebook.func_rules {
+      println!("{}:", func_name);
+      println!("num_args: {}", num_args);
+
+      for rule in rules {
+        println!("{}", rule);
+      }
+      println!();
+    }
+    println!();
+
+    println!("id_to_name:");
+    println!("{:?}", rulebook.id_to_name);
+    println!();
+
     return compile_code(&load_file_code(file), file);
   }
 
